@@ -1,0 +1,11 @@
+services:
+  energyshow:
+    build: .
+    container_name: energyshow
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - DATABASE_PATH=/app/data/energyshow.db
+    restart: unless-stopped
