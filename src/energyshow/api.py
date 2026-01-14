@@ -16,17 +16,21 @@ async def get_today_prices(db: Session = Depends(get_db)):
     """Get today's prices, fetching from external API first."""
     api_data, new_count = await fetch_and_store_prices(db)
 
+    today = date.today()
+    today_data = [
+        PriceEntry(
+            timestamp=datetime.fromisoformat(entry["date"]),
+            value=entry["value"]
+        )
+        for entry in api_data.get("data", [])
+        if datetime.fromisoformat(entry["date"]).date() == today
+    ]
+
     return PriceResponse(
         tariff=api_data.get("tariff", "EPEXSPOTAT"),
         unit=api_data.get("unit", "ct/kWh"),
         interval=api_data.get("interval", 15),
-        data=[
-            PriceEntry(
-                timestamp=datetime.fromisoformat(entry["date"]),
-                value=entry["value"]
-            )
-            for entry in api_data.get("data", [])
-        ]
+        data=today_data
     )
 
 
